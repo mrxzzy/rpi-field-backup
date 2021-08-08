@@ -1,0 +1,9 @@
+[Unit]
+Description=Mounts the (probably) SD card to /media/Source
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/local/bin/sd-mount.sh add %i
+ExecStop=/usr/local/bin/sd-mount.sh remove %i
+
