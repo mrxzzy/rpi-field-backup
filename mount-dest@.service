@@ -1,0 +1,16 @@
+[Unit]
+Description=mount %i to /media/dest
+After=dev-MediaDest.device
+BindsTo=dev-MediaDest.device
+Requisite=dev-MediaDest.device
+
+[Service]
+Type=oneshot
+StandardOutput=journal
+RemainAfterExit=true
+ExecStart=/usr/bin/echo mounting disk %i
+ExecStart=/usr/bin/mount /dev/%i /media/dest
+ExecStop=/usr/bin/umount /media/source
+
+[Install]
+WantedBy=dev-MediaDest.device
