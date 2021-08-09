@@ -52,7 +52,7 @@ rsync --recursive \
       --log-file="${LOG_FILE}" \
       --exclude="${SRC_CONFIG}" \
       "${SOURCE}/DCIM/" \
-      "${DEST}/SDBackup/${UUID}" 2>/dev/null 
+      "${DEST}/SDBackup/${UUID}" 2>/dev/null > /tmp/rsync_status
 
 sync
 

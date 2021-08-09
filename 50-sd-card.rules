@@ -1,2 +1,2 @@
 IMPORT{program}="/sbin/blkid -o udev -p %N"
-ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_TYPE}=="exfat", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaSource", ENV{SYSTEMD_WANTS}+="mount-source@%k.service"
+ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_TYPE}=="exfat", SYMLINK+="MediaSource", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaSource", ENV{SYSTEMD_WANTS}+="mount-source@%k.service"

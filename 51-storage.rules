@@ -1,2 +1,2 @@
 IMPORT{program}="/sbin/blkid -o udev -p %N"
-ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_TYPE}=="ntfs", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
+ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_TYPE}=="ntfs", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"

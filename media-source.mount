@@ -1,0 +1,14 @@
+[Unit]
+Description=mount /media/source
+After=dev-MediaSource.device
+BindsTo=dev-MediaSource.device
+Requisite=dev-MediaSource.device
+
+[Mount]
+What=/dev/MediaSource
+Where=/media/source
+Type=exfat
+Options=defaults
+
+[Install]
+WantedBy=dev-MediaSource.device
