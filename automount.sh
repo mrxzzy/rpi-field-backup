@@ -3,11 +3,16 @@
 # stolen from https://www.andreafortuna.org/2019/06/26/automount-usb-devices-on-linux-using-udev-and-systemd/
 
 ACTION=$1
-DEVBASE=$2
-DEVICE="/dev/${DEVBASE}"
+MEDIA=$2
+
+if [[ $MEDIA -eq "SD" ]]; then
+  MOUNT="/media/source"
+else
+  MOUNT="/media/dest"
+fi
 
 # See if this drive is already mounted
-MOUNT_POINT=$(/bin/mount | /bin/grep ${DEVICE} | /usr/bin/awk '{ print $3 }')
+MOUNT_POINT=$(/bin/mount | /bin/grep ${MOUNT} | /usr/bin/awk '{ print $3 }')
 
 do_mount()
 {
