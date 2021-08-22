@@ -7,7 +7,7 @@ Requisite=dev-MediaSource.device
 [Mount]
 What=/dev/MediaSource
 Where=/media/source
-Type=exfat
+#Type=exfat
 Options=defaults
 
 [Install]

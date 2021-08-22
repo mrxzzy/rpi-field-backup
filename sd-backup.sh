@@ -7,14 +7,14 @@ SRC_CONFIG=.uuid
 LOG_FILE=${DEST}/SDBackup/rsync.log
 
 # check if directories are mounted
-if [ -n $(/bin/mount | /bin/grep ${SOURCE} | /usr/bin/awk '{print $3}') ]; then
+if [[ -n $(/bin/mount | /bin/grep ${SOURCE} | /usr/bin/awk '{print $3}') ]]; then
   echo "${SOURCE} is mounted, we happy"
 else
   echo "${SOURCE} not mounted, exiting"
   exit 1
 fi
 
-if [ -n $(/bin/mount | /bin/grep ${DEST} | /usr/bin/awk '{print $3}') ]; then
+if [[ -n $(/bin/mount | /bin/grep ${DEST} | /usr/bin/awk '{print $3}') ]]; then
   echo "${DEST} is mounted, we happy"
 else
   echo "${DEST} not mounted, exiting"
@@ -42,12 +42,12 @@ fi
 
 # run an rsync
 
+# --stats \
 rsync --recursive \
       --times \
       --prune-empty-dirs \
       --ignore-existing \
       --info=progress2 \
-      --stats \
       --human-readable \
       --log-file="${LOG_FILE}" \
       --exclude="${SRC_CONFIG}" \
