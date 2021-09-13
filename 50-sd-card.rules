@@ -1,2 +1,8 @@
-IMPORT{program}="/sbin/blkid -o udev -p %N"
-ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_LABEL_FATBOOT}=="EOS_DIGITAL", SYMLINK+="MediaSource", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaSource", ENV{SYSTEMD_WANTS}+="mount-source@%k.service"
+# need different approach, with this version of raspbian blkid causes a kernel panic on boot
+# https://github.com/raspberrypi/linux/issues/4550
+
+#IMPORT{program}="/sbin/blkid -o udev -p %N"
+#ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_LABEL_FATBOOT}=="EOS_DIGITAL", SYMLINK+="MediaSource", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaSource", ENV{SYSTEMD_WANTS}+="mount-source@%k.service"
+
+
+ACTION=="add", KERNEL=="sd[a-z][0-9]", ENV{ID_FS_LABEL}=="EOS_DIGITAL", SYMLINK+="MediaSource", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaSource", ENV{SYSTEMD_WANTS}+="mount-source@%k.service"

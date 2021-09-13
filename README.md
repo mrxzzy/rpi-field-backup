@@ -22,4 +22,18 @@ post reboot (as root still)
 pip3 install adafruit-circuitpython-charlcd
 ```
 
+# pinouts
 
+```
+pi         adafruit shield
+     __________
+    |          |
+ __________    |
+|          |   |
+2 4 6 8    2 4 6 8
+. . . .    . . . .
+. . . .    . . . .
+1 3 5 9    1 3 5 9
+  | |__________|
+  |__________|
+```

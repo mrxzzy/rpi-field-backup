@@ -1,0 +1,9 @@
+[Unit]
+Description=lcd operation daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/lcd-daemon.py
+
+[Install]
+WantedBy=multi-user.target
