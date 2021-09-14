@@ -132,7 +132,7 @@ def ReadInput(schedule):
     task_current = 'U'
     print("unmount everything (and kill rsync)")
 
-  lcdupdater.enter(0.05,1,HandleInput, (schedule,))
+  lcdupdater.enter(0.05,1,ReadInput, (schedule,))
     
 
 lcdupdater = sched.scheduler(time.time, time.sleep)

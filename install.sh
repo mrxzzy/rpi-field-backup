@@ -18,6 +18,7 @@ systemctl enable media-dest.mount
 systemctl enable media-source.mount
 systemctl enable sd-backup.service
 systemctl enable lcd.service
+systemctl restart lcd.service
 udevadm control --reload-rules
 
 echo "chmod sd-backup script.."
