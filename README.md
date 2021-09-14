@@ -37,3 +37,11 @@ pi         adafruit shield
   | |__________|
   |__________|
 ```
+
+# commands
+
+lcd-daemon.py responds to these buttons on the lcd hat:
+
+"SELECT" (leftmost button) = system shutdown
+"LEFT" (button right of select) = kill any running rsync
+"RIGHT" (rightmost button) = umount everything and kill any rsyncs

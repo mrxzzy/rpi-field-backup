@@ -35,7 +35,11 @@ def StatusRsync():
 
     if elapsed > rsync_timeout:
       #print('rsync log, but out of date')
-      return 'STALE LOG'
+      with open(rsync_status_location, 'r') as f:
+        for line in f: pass
+
+      data = line.split()
+      return '%s %s DONE' % (data[1],data[0])
     else:
       with open(rsync_status_location, 'r') as f:
         for line in f: pass
@@ -108,7 +112,9 @@ def UpdateLCD(schedule):
   #print('updated lcd')
   lcdupdater.enter(1,2, UpdateLCD, (schedule,))
 
-def HandleInput(schedule):
+  #task handling goes here
+
+def ReadInput(schedule):
   global task_current
 
   # Button mapping:
@@ -131,6 +137,6 @@ def HandleInput(schedule):
 
 lcdupdater = sched.scheduler(time.time, time.sleep)
 lcdupdater.enter(1,1, UpdateLCD, (lcdupdater,))
-lcdupdater.enter(0.05,1, HandleInput, (lcdupdater,))
+lcdupdater.enter(0.05,1, ReadInput, (lcdupdater,))
 lcdupdater.run()
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "copying udev rules.."
-cp 50-sd-card.rules /etc/udev/rules.d/
-cp 51-storage.rules /etc/udev/rules.d/
+cp 99-field-backup.rules /etc/udev/rules.d/
+#cp 51-storage.rules /etc/udev/rules.d/
 echo "copying mount script.."
 cp sd-backup.sh /usr/local/bin/
 echo "copying systemd unit.."
@@ -22,4 +22,4 @@ udevadm control --reload-rules
 
 echo "chmod sd-backup script.."
 chmod 755 /usr/local/bin/sd-backup.sh
-
+chmod 755 /usr/local/bin/lcd-daemon.py
