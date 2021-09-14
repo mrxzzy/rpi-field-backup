@@ -26,8 +26,10 @@ media_dest = '/dev/MediaDest'
 mnt_dest = '/media/dest'
 sequence_current = 0
 task_current = 'I'
+line1 = 'STARTUP'
 
 def StatusRsync():
+  global task_current
 
   if os.path.isfile(rsync_status_location): 
     stats = os.stat(rsync_status_location)
@@ -41,6 +43,7 @@ def StatusRsync():
       data = line.split()
       return '%s %s DONE' % (data[1],data[0])
     else:
+      task_current = 'I'
       with open(rsync_status_location, 'r') as f:
         for line in f: pass
 
@@ -56,8 +59,11 @@ def StatusRsync():
 # * check if /dev/MediaDest exists
 
 def StatusSource():
+  global task_current 
+
   if os.path.ismount(mnt_source):
     #print("source mounted")
+    task_current = 'I'
     return 'M'
   elif os.path.exists(media_source):
     if stat.S_ISBLK(os.stat(media_source).st_mode):
@@ -71,8 +77,11 @@ def StatusSource():
     return 'X'
 
 def StatusDest():
+  global task_current
+
   if os.path.ismount(mnt_dest):
     #print("destination mounted")
+    task_current = 'I'
     return 'M'
   elif os.path.exists(media_dest):
     if stat.S_ISBLK(os.stat(media_dest).st_mode):
@@ -107,12 +116,35 @@ def UpdateSpinner():
 
 def UpdateLCD(schedule):
   global task_current
+  global line1
 
-  lcd.message = '%-16s\n%s %s SRC:%1s DST:%1s' % (StatusRsync(),UpdateSpinner(),task_current,StatusSource(),StatusDest())
-  #print('updated lcd')
+  if task_current == 'S':
+    print("shutdown in progress")
+    os.system("/usr/sbin/shutdown -h now")
+    line1 = 'SHUTDOWN NOW'
+    task_current = 'D'
+  elif task_current == 'K':
+    print("killing any rsyncs we find")
+    os.system("/usr/bin/pkill rsync")
+    line1 = 'RSYNC KILLED'
+    task_current = 'D'
+  elif task_current == 'U':
+    print('killing and unmounting all')
+    os.system("/usr/bin/pkill rsync")
+    print('rsync killed')
+
+    os.system('/usr/bin/umount /media/source')
+    os.system('/usr/bin/umount /media/dest')
+    print('disks unmounted')
+    line1 = 'DISKS UNMOUNTED'
+    task_current = 'D'
+  elif task_current == 'D':
+    pass
+  else:
+    line1 = StatusRsync()
+
+  lcd.message = '%-16s\n%s %s SRC:%1s DST:%1s' % (line1,UpdateSpinner(),task_current,StatusSource(),StatusDest())
   lcdupdater.enter(1,2, UpdateLCD, (schedule,))
-
-  #task handling goes here
 
 def ReadInput(schedule):
   global task_current
