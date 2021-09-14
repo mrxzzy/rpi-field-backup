@@ -119,24 +119,13 @@ def UpdateLCD(schedule):
   global line1
 
   if task_current == 'S':
-    print("shutdown in progress")
+    line1 = 'SHUTDOWN ISSUED'
+    lcd.message = '%-16s\n%s %s SRC:%1s DST:%1s' % (line1,UpdateSpinner(),task_current,StatusSource(),StatusDest())
     os.system("/usr/sbin/shutdown -h now")
-    line1 = 'SHUTDOWN NOW'
     task_current = 'D'
   elif task_current == 'K':
-    print("killing any rsyncs we find")
-    os.system("/usr/bin/pkill rsync")
-    line1 = 'RSYNC KILLED'
-    task_current = 'D'
-  elif task_current == 'U':
-    print('killing and unmounting all')
-    os.system("/usr/bin/pkill rsync")
-    print('rsync killed')
-
-    os.system('/usr/bin/umount /media/source')
-    os.system('/usr/bin/umount /media/dest')
-    print('disks unmounted')
-    line1 = 'DISKS UNMOUNTED'
+    os.system("/usr/bin/systemctl stop sd-backup.service")
+    line1 = 'BACKUP STOPPED'
     task_current = 'D'
   elif task_current == 'D':
     pass
@@ -155,14 +144,11 @@ def ReadInput(schedule):
   # * right_button == unmount source/dest
 
   if lcd.select_button:
+    #shutdown system
     task_current = 'S'
-    print("shutdown ordered")
   elif lcd.left_button:
+    #Kill backup
     task_current = 'K'
-    print("kill rsync")
-  elif lcd.right_button:
-    task_current = 'U'
-    print("unmount everything (and kill rsync)")
 
   lcdupdater.enter(0.05,1,ReadInput, (schedule,))
     
