@@ -4,18 +4,15 @@ After=media-dest.mount
 BindsTo=media-dest.mount
 Requisite=media-dest.mount
 
-After=media-source.mount
-BindsTo=media-source.mount
-Requisite=media-source.mount
+After=dev-Camera.device
+BindsTo=dev-Camera.device
 
 [Service]
 StandardOutput=journal
-ExecStart=/usr/local/bin/sd-backup.sh
+ExecStart=/usr/local/bin/sd-backup.py
 ExecStopPost=/usr/bin/sleep 2
-ExecStopPost=/usr/bin/umount /media/source
 ExecStopPost=/usr/bin/umount /media/dest
 TimeoutStopSec=10
 
 [Install]
 WantedBy=media-dest.mount
-WantedBy=media-source.mount
