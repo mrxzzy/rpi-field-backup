@@ -5,6 +5,7 @@ import os
 import sched, time
 import shutil
 import datetime
+import math
 
 import board
 import busio
@@ -45,7 +46,7 @@ def StatusMedia():
     # mounted, report usage
     total, used, free = shutil.disk_usage(mnt_dest)
 
-    return '%d%% full' % ((used / total) * 100)
+    return '%d%% full' % (math.ceil((used / total) * 100))
   else:
     return ''
 
