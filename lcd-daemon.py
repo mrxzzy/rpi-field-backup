@@ -15,12 +15,19 @@ i2c = busio.I2C(board.SCL, board.SDA)
 lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
 lcd.create_char(0,bytes([0x0,0x10,0x8,0x4,0x2,0x1,0x0,0x0]))
 
-sd_service_status = '/tmp/sd_backup_status'
+# how many seconds to wait before assuming the sd-backup script has 
+# stopped working
+watchdog_timer = 15
 
-camera_status = '/tmp/camera_plugged_in'
+sd_service_working = '/tmp/sd_backup_working'
+
+camera_plugged_in = '/tmp/camera_plugged_in'
 camera_errors = '/tmp/camera_errors'
 camera_tally = '/tmp/camera_status'
 camera_done = '/tmp/camera_done'
+
+copy_start = '/tmp/camera_copy_start'
+copy_end = '/tmp/camera_copy_end'
 
 media_dest = '/dev/MediaDest'
 mnt_dest = '/media/dest'
@@ -31,49 +38,32 @@ line1 = 'STARTUP'
 prev_usage = 0
 transfer_rate = 0
 
-# looks at the destination media and determines usage and transfer rate
 def StatusMedia():
-  global prev_usage
-  global transfer_rate
 
   status = StatusDest()
   if status == 'M':
-    # mounted, report usage and maybe data rate
+    # mounted, report usage
     total, used, free = shutil.disk_usage(mnt_dest)
 
-    if prev_usage == 0:
-      rate = 0
-    else:
-      # estimate transfer rate in MB/s
-      transfer_rate = (used - prev_usage) / 1024 / 1024
-      if transfer_rate < 0:
-        transfer_rate = 0
-
-    prev_usage = used
-
-    return '%.2f/%.1f GB' % (used / 1024 / 1024 / 1024,total / 1024 / 1024 / 1024)
-
-  elif status == 'U':
-    # disk is not mounted
-    return 'SSD Unmounted'
-  elif status == 'X':
-    # disk not plugged in
-    return 'SSD Unplugged'
+    return '%d%% full' % ((used / total) * 100)
+  else:
+    return ''
 
 def StatusDaemons():
-  global sd_service_status
-  global camera_done
+  global watchdog_timer
+  global sd_service_working
+  global copy_end
   
-  if os.path.isfile(camera_done):
+  if os.path.isfile(copy_end):
     return 'D'
-  elif os.path.isfile(sd_service_status):
-    mtime = datetime.datetime.fromtimestamp(os.path.getmtime(sd_service_status))
+  elif os.path.isfile(sd_service_working):
+    mtime = datetime.datetime.fromtimestamp(os.path.getmtime(sd_service_working))
     now = datetime.datetime.now()
     elapsed = now - mtime
     age = elapsed.total_seconds()
 
-    if age > 10:
-      print("sd-backup.py hasn't updated in 10 seconds, assuming it crashed.")
+    if age > watchdog_timer:
+      print("sd-backup.py hasn't updated in %d seconds, assuming it crashed." % (watchdog_timer))
       return 'E'
     else:
       return 'R'
@@ -81,28 +71,58 @@ def StatusDaemons():
     return 'I'
 
 def StatusCamera():
-  global camera_status
+  global camera_plugged_in
   global camera_errors
   global camera_tally
-  global camera_done
+  global copy_start
+  global copy_end
 
-  if os.path.isfile(camera_status):
+  if os.path.isfile(camera_plugged_in):
     return 'M'
   elif os.path.isfile(camera_errors):
     return 'E'
   elif os.path.isfile(camera_tally):
     return 'A'
-  elif os.path.isfile(camera_done):
+  elif os.path.isfile(copy_end):
     return 'D'
   else:
     return 'U'
+
+def CopyCount():
+  global camera_tally
+
+  if os.path.isfile(camera_tally):
+    with open(camera_tally,'r') as f: tally = f.readlines()
+    return tally[0]
+
+  return '0/0'
+
+def DataRate():
+  global copy_start
+
+  if os.path.isfile(copy_start):
+    mtime = os.path.getmtime(copy_start)
+    now = time.time()
+    with open(copy_start,'r') as f: data = f.readlines()
+    start_used = int(data[0])
+
+    total, used, free = shutil.disk_usage(mnt_dest)
+
+    copied = used - start_used
+    elapsed = now - mtime
+
+    rate = (copied / elapsed) / 1024 / 1024
+
+    return "%.0f MB/s" % (rate)
+
+  return "0 MB/s"
+  
 
 def StatusDest():
   global task_current
 
   if os.path.ismount(mnt_dest):
     #print("destination mounted")
-    task_current = 'I'
     return 'M'
   elif os.path.exists(media_dest):
     if stat.S_ISBLK(os.stat(media_dest).st_mode):
@@ -134,15 +154,16 @@ def UpdateLCD(schedule):
     line1 = 'SHUTDOWN ISSUED'
     issue_shutdown = True
     task_current = 'D'
-  elif task_current == 'D':
-    pass
+  elif StatusDaemons() == 'D':
+    line1 = 'COPY DONE'
+  elif StatusDaemons() == 'I':
+    line1 = 'SYSTEM IDLE'
   elif os.path.isfile(camera_errors):
     with open(camera_errors) as f: line1 = f.read().replace('\n','')
   else:
-    line1 = StatusMedia()
+    line1 = "%s %s" % (DataRate(),CopyCount())
 
-
-  line2 = '%s %s%1s%1s %.0f MB/s' % (UpdateSpinner(),StatusDaemons(),StatusDest(),StatusCamera(),transfer_rate)
+  line2 = '%s %s%1s%1s %s' % (UpdateSpinner(),StatusDaemons(),StatusDest(),StatusCamera(),StatusMedia())
 
   lcd.message = '%-16s\n%-16s' % (line1,line2)
   lcdupdater.enter(1,2, UpdateLCD, (schedule,))

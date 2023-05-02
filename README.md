@@ -45,3 +45,9 @@ lcd-daemon.py responds to these buttons on the lcd hat:
 * "SELECT" (leftmost button) = system shutdown
 * "LEFT" (button right of select) = kill any running rsync
 * "RIGHT" (rightmost button) = umount everything and kill any rsyncs
+
+# notes for dummies like the person that wrote this
+
+udev attributes: `udevadm info --attribute-walk --path=$(udevadm info --query=path --name=/dev/sda)`
+or: `udevadm info --attribute-walk --name=/dev/sda1`
+get ENV: `udevadm info --export --name=/dev/sda1`

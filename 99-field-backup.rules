@@ -4,5 +4,6 @@ ACTION=="add", SUBSYSTEM=="usb", ENV{ID_VENDOR_FROM_DATABASE}=="Canon, Inc.", SY
 ACTION=="remove", SUBSYSTEM=="usb", ENV{ID_VENDOR_FROM_DATABASE}=="Canon, Inc.", RUN+="/bin/rm -f /tmp/camera_plugged_in"
 
 KERNEL!="sd*", GOTO="SD_early_exit"
-ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
+#ACTION=="add", ENV{ID_FS_TYPE}=="ntfs", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
+ACTION=="add", ENV{ID_FS_LABEL}=="camera_bup", SYMLINK+="MediaDest", TAG+="systemd", ENV{SYSTEMD_ALIAS}="/dev/MediaDest", ENV{SYSTEMD_WANTS}+="mount-dest@%k.service"
 LABEL="SD_early_exit"
